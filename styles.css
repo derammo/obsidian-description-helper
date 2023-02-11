@@ -1,8 +1,15 @@
-/*
+img + span.cm-inline-code > span.derammo-description-helper-auto-dim {
+    color: var(--text-faint);
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+img + span.cm-inline-code > span.derammo-description-helper-auto-hide {
+    display: none;
+}
 
-If your plugin does not need CSS, delete this file.
+span.cm-formatting-link-string + span.derammo-description-helper-auto-hide {
+    display: none;
+}
 
-*/
+img + span.derammo-description-helper.derammo-description-helper-auto-hide {
+    display: inline-flex;
+}

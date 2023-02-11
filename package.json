@@ -1,24 +1,43 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "obsidian-derammo-description-helper",
+	"version": "1.0.1",
+	"description": "Provides UI elements to suggest additional descriptive terms using AI.  Requires 'Known Tags' plugin 'obsidian-derammo-knowntags'.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"lint": "eslint . --ext .ts"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "derammo",
 	"license": "MIT",
 	"devDependencies": {
+		"@codemirror/language": "^6.5.0",
+		"@lezer/common": "^1.0.2",
 		"@types/node": "^16.11.6",
-		"@typescript-eslint/eslint-plugin": "5.29.0",
-		"@typescript-eslint/parser": "5.29.0",
+		"@typescript-eslint/eslint-plugin": "^5.52.0",
+		"@typescript-eslint/parser": "^5.52.0",
 		"builtin-modules": "3.3.0",
+		"electron": "^23.1.0",
 		"esbuild": "0.17.3",
+		"eslint": "^8.34.0",
+		"file-type": "^18.2.0",
+		"got": "^12.5.3",
 		"obsidian": "latest",
+		"obsidian-derammo-knowntags-api": "^1.0.17",
+		"openai": "^3.1.0",
+		"pngjs": "^6.0.0",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
-	}
+	},
+	"files": [
+		"main.js",
+		"main.js.map",
+		"manifest.json",
+		"versions.json",
+		"styles.css",
+		"LICENSE",
+		"README.md"
+	]
 }
