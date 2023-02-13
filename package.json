@@ -24,6 +24,6 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"obsidian-knowntags": "file:../obsidian-knowntags/obsidian-knowntags-1.0.10.tgz"
+		"obsidian-knowntags": "file:../obsidian-knowntags/obsidian-knowntags-1.0.13.tgz"
 	}
 }
