@@ -1,5 +1,5 @@
 import { MinimalCommandHost } from "derobst/interfaces";
-import { DerAmmoKnownTagsAPI } from "obsidian-knowntags";
+import { DerAmmoKnownTagsAPI } from "obsidian-derammo-knowntags-api";
 import { MetadataCache, TFile } from "obsidian";
 
 export interface Settings {

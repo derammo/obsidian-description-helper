@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-description-helper",
+	"name": "obsidian-derammo-description-helper",
 	"version": "1.0.0",
-	"description": "Provides UI elements to suggest additional descriptive terms using AI.  Requires 'Known Tags' plugin 'derammo-obsidian-knowntags'.",
+	"description": "Provides UI elements to suggest additional descriptive terms using AI.  Requires 'Known Tags' plugin 'obsidian-derammo-knowntags'.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -21,9 +21,12 @@
 		"esbuild": "0.17.3",
 		"obsidian": "latest",
 		"tslib": "2.4.0",
-		"typescript": "4.7.4"
+		"typescript": "4.7.4",
+		"file-type": "^18.2.0",
+		"got": "^12.5.3",
+		"openai": "^3.1.0",
+		"obsidian-derammo-knowntags-api": "file:../obsidian-knowntags/package_api/obsidian-derammo-knowntags-api-1.0.16.tgz"
 	},
 	"dependencies": {
-		"obsidian-knowntags": "file:../obsidian-knowntags/obsidian-knowntags-1.0.13.tgz"
 	}
 }

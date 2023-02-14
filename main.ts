@@ -1,7 +1,7 @@
 import { CommandDispatcher, CommandViewPlugin, createCommandRemovalPostProcessor } from 'derobst/command';
 import { DEFAULT_SETTINGS, Host, Settings } from 'main/Plugin';
 import { Notice, TFile } from 'obsidian';
-import { DerAmmoKnownTagsAPI, getDerAmmoKnownTagsAPI } from 'obsidian-knowntags';
+import { DerAmmoKnownTagsAPI, getDerAmmoKnownTagsAPI } from 'obsidian-derammo-knowntags-api';
 
 import { Configuration, ImagesResponseDataInner, OpenAIApi } from "openai";
 
