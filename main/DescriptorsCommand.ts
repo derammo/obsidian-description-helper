@@ -1,6 +1,6 @@
 import { SyntaxNode } from "derobst/command";
 import { ParsedCommandWithParameters } from "derobst/command";
-import { HEADER_NODE_PREFIX, QUOTE_NODE_PREFIX, QUOTE_REGEX } from "derobst/internals";
+import { HASHTAG_WHOLE_PREFIX, HEADER_NODE_PREFIX, QUOTE_NODE_PREFIX, QUOTE_REGEX } from "derobst/internals";
 import { ViewPluginContext } from "derobst/view";
 import { editorInfoField } from "obsidian";
 import { Host } from "./Plugin";
@@ -19,59 +19,11 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 	protected gatherDescriptionSection(descriptors: Set<string>, context: ViewPluginContext<Host>): boolean {
 		const descriptionHeader: SyntaxNode | null = this.findDescriptionHeader(context);
 		if (descriptionHeader !== null) {
-			this.gatherDescriptorsFromTags(descriptors, descriptionHeader, context);
+			// this.gatherDescriptorsFromTags(descriptors, descriptionHeader, context);
 			this.ingestDescriptionSection(descriptors, descriptionHeader, context);
 			return true;
 		}
 		return false;
-	}
-
-	private gatherDescriptorsFromTags(descriptors: Set<string>, descriptionHeader: SyntaxNode, context: ViewPluginContext<Host>): boolean {
-		if (this.commandNode === undefined) {
-			return false;
-		}
-		const currentFile = context.state.field(editorInfoField).file;
-		if (currentFile === null) {
-			return false;
-		}
-		const meta = context.plugin.metadataCache.getFileCache(currentFile);
-		// if (meta !== null) {
-		// 	getAllTags(context.plugin.metadataCache.getFileCache(currentFile)!)?.forEach((value: string) => {
-		//		// this also includes tags from frontmatter
-		// 	});
-		// }
-		if (meta === null) {
-			return false;
-		}
-		if (meta.tags === undefined) {
-			return false;
-		}
-		const sectionStart = descriptionHeader.to;
-		const sectionEnd = this.commandNode.from;
-		for (const tag of meta.tags) {
-			if (tag.position.start.offset >= sectionEnd) {
-				continue;
-			} 
-			if (tag.position.end.offset < sectionStart) {
-				continue;
-			} 
-			// look up out own meta info about it
-			const info = context.plugin.info.getMetadata(tag.tag.slice(1), this.frontMatterSection);
-			if (info?.prompt !== undefined) {
-				if (info.prompt !== null && info.prompt.length > 0) {
-					// explicitly null or empty prompt means ignore this
-					descriptors.add(info.prompt);
-				}
-			} else {
-				const slash = tag.tag.indexOf("/");
-				if (slash >= 0) {
-					// just use the subpath, as long as the top level tag is registered
-					const prompt = tag.tag.slice(slash + 1);
-					descriptors.add(prompt);
-				}
-			}
-		}
-		return ((meta?.tags?.length ?? 0) > 0);
 	}
 
 	private findDescriptionHeader(context: ViewPluginContext<Host>): SyntaxNode | null {
@@ -107,6 +59,22 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 					const descriptor = match[1].trim();
 					if (descriptor.length > 0) {
 						descriptors.add(descriptor);
+					}
+				}
+			} else if (ingest.type.name.startsWith(HASHTAG_WHOLE_PREFIX)) {
+				const hashTag = context.state.doc.sliceString(ingest.from, ingest.to);
+				const info = context.plugin.info.getMetadata(hashTag, this.frontMatterSection);
+				if (info?.prompt !== undefined) {
+					if (info.prompt !== null && info.prompt.length > 0) {
+						// explicitly null or empty prompt means ignore this
+						descriptors.add(info.prompt);
+					}
+				} else {
+					const slash = hashTag.indexOf("/");
+					if (slash >= 0) {
+						// just use the subpath
+						const prompt = hashTag.slice(slash + 1);
+						descriptors.add(prompt);
 					}
 				}
 			}
