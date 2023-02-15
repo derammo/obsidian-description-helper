@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting, Plugin } from 'obsidian';
-import { Host, Settings } from './Plugin';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Host } from './Plugin';
 
 export class SettingTab extends PluginSettingTab {
 	constructor(app: App, plugin: Plugin, private host: Host) {

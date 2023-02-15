@@ -9,10 +9,10 @@ import {
   DecorationSet,
   EditorView
 } from "@codemirror/view";
-import { SyntaxNode, SyntaxNodeRef } from "@lezer/common";
-import { editorLivePreviewField } from "obsidian";
+import { SyntaxNode } from "@lezer/common";
 import { ALT_TEXT_PREFIX } from "commands/image_prompt_from_tags/Command";
 import { Host } from "main/Plugin";
+import { editorLivePreviewField } from "obsidian";
 import { ButtonWidget } from "./ButtonWidget";
 import { ImageReference } from "./ImageReference";
 
@@ -55,8 +55,9 @@ export function createGeneratedImagesDecorationsStateField(host: Host): StateFie
 }
 
 // XXX consider using this to detect when changes are relevant to our decorations, but how are ranges meaningful if we DON'T recreate decorations?
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function walkChanges(transaction: Transaction): void {
-  transaction.changes.iterChanges((fromOld: number, toOld: number, fromNew: number, toNew: number, inserted: Text) => {
+  transaction.changes.iterChanges((fromOld: number, toOld: number, fromNew: number, toNew: number, _inserted: Text) => {
     console.log(`STATE_UPDATE CHANGE OLD ${fromOld}..${toOld} '${transaction.state.doc.sliceString(fromOld, toOld)}'`);
     console.log(`STATE_UPDATE CHANGE NEW ${fromNew}..${toNew} '${transaction.state.doc.sliceString(fromNew, toNew)}'`);
   });
@@ -73,7 +74,7 @@ function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: Edito
       switch (scannedNode.type.name) {
         case 'Document':
           break;
-        case 'image_image-alt-text_link':
+        case 'image_image-alt-text_link': {
           const text = state.doc.sliceString(scannedNode.from, scannedNode.to)
           const match = text.match(ALT_TEXT_REGEX);
           if (match !== null) {
@@ -83,7 +84,8 @@ function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: Edito
             altText = null;
           }
           break;
-        case 'string_url':
+        }
+        case 'string_url': {
           const closeParen = scannedNode.node.nextSibling;
           if (altText === null) {
             break;
@@ -95,6 +97,7 @@ function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: Edito
           imageReferences.push(new ImageReference(state, generationId, altText, scannedNode.node, closeParen));
           builder.add(closeParen.to, closeParen.to, Decoration.widget({ widget: new ButtonWidget(host, imageReferences) }));
           break;
+        }
       }
     },
   });

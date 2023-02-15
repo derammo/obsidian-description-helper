@@ -28,6 +28,9 @@ export class Command extends DescriptorsCommand {
 	}
 
 	buildWidget(context: ViewPluginContext<Host>): void {
+		if (this.commandNode === undefined) {
+			return;
+		}
 		let scan: SyntaxNode | null = this.commandNode;
 		let quoteEnd: SyntaxNode | null = null;
 		while (scan !== null) {
@@ -68,9 +71,8 @@ export class Command extends DescriptorsCommand {
 			return;
 		}
 
-		let descriptors = this.createDescriptorsCollection();
+		const descriptors = this.createDescriptorsCollection();
 		this.gatherDescriptionSection(descriptors, context);
-
 		const text = new EditWidget(context.plugin, this, quoteStart, quoteEnd, descriptors);
 		context.builder.add(quoteStart.from, this.commandNode.from, Decoration.replace({ widget: text }));
 		WidgetFormatter.markBasedOnParameters(context, this);

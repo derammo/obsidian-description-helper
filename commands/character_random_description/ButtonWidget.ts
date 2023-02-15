@@ -50,7 +50,7 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 			presence_penalty: 1
 		})
 		.then((response) => {
-			let lines: string[] = [];
+			const lines: string[] = [];
 			response.data.choices.forEach((value: CreateCompletionResponseChoicesInner) => {
 				if (value.text === undefined) {
 					return;
@@ -88,6 +88,9 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 			}
 
 			const generated = `${lines.join("\n")}\n\n`;
+			if (this.command.commandNode === undefined) {
+				return;
+			}
 			view.dispatch({ 
 				changes: { 
 					from: this.command.commandNode.from-1, 

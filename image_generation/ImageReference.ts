@@ -69,7 +69,6 @@ export class ImageReference {
     if (!this.url.startsWith("https://")) {
       return host.loadFile(this.url);
     }
-    const imageReference = this;
     const url = new URL(this.url);
     
     return got.got(url, { responseType: "buffer" })
@@ -82,7 +81,7 @@ export class ImageReference {
       })
       .then((file: TFile) => {
         // rescane the current document version to find any URL occurrences that are still there
-        this.replaceReferences(view, imageReference.url, file);
+        this.replaceReferences(view, this.url, file);
         this.file = file;
         return file;
       });
@@ -99,7 +98,10 @@ export class ImageReference {
     if (results.fileType.ext !== "png") {
       throw new Error("Unknown file type");
     }
-    const fileName = url.pathname.split('/').last()!;
+    const fileName = url.pathname.split('/').last();
+    if (fileName === undefined) {
+      return Promise.reject("Invalid URL");
+    }
     // XXX config
     // XXX also create markdown file with original meta information such as prompt and all components of the URL other than authorization ones
     return host.createFileFromBuffer(`DALL-E/${fileName}`, results.buffer);

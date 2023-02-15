@@ -37,6 +37,9 @@ export class WidgetFormatter {
 
     // use style that implements the selected behavior when not focused
     private static autoDimOrHide(context: ExtensionContext<Host>, command: ParsedCommand<Host>, { dim, hide }: { dim: boolean; hide: boolean; }) {
+        if (command.commandNode === undefined) {
+            return;
+        }
         if (hide) {
             context.builder.add(command.commandNode.from, command.commandNode.to, Decoration.mark({ attributes: { "class": "known-tags known-tags-auto-hide" } }));
         } else if (dim) {

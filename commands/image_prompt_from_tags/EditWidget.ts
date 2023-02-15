@@ -49,7 +49,7 @@ export class EditWidget extends CommandWidgetBase<Host> {
 		this.loadContent(view, control);
 
 		this.host.registerDomEvent(control, "change", async (event: Event) => {
-			let input: string = ((event.target as any)?.value ?? "").trim();
+			let input: string = ((event.target as HTMLTextAreaElement)?.value ?? "").trim();
 
 			// if set back to default, store nothing
 			if (input == this.generated) {
@@ -89,11 +89,14 @@ export class EditWidget extends CommandWidgetBase<Host> {
 		this.host.registerDomEvent(control, "click", async (_event: Event) => {
 			this.host.generateImages(prompt)
 			.then((results: { generationId: string, urls: string[] }) => {
+				if (this.command.commandNode === undefined) {
+					return;
+				}
 				// XXX config
 				const presentSize = 256;
 				let prefix = "\n\n";
 				let insertionLocation: number = this.command.commandNode.to + 1;
-				let walk: TextIterator = view.state.doc.iterRange(insertionLocation);
+				const walk: TextIterator = view.state.doc.iterRange(insertionLocation);
 				// skip over entire line as enumeration
 				walk.next();
 				if (!walk.done) {

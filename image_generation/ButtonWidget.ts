@@ -9,6 +9,10 @@ export class ButtonWidget extends WidgetType {
 
 	constructor(public host: Host, public imageReferences: ImageReference[]) {
 		super();
+		if (imageReferences.last() === undefined) {
+			throw new Error("Image buttons should always be attached to image references.")
+		} 
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		this.imageReference = imageReferences.last()!;
 	}
 

@@ -5,7 +5,6 @@ import { ViewPluginContext } from "derobst/view";
 import { editorInfoField } from "obsidian";
 import { Host } from "./Plugin";
 
-
 // base for commands that gather descriptors (short pieces of prompts) from tags and quotes in 
 // description section of the current file
 export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Host> {
@@ -28,6 +27,9 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 	}
 
 	private gatherDescriptorsFromTags(descriptors: Set<string>, descriptionHeader: SyntaxNode, context: ViewPluginContext<Host>): boolean {
+		if (this.commandNode === undefined) {
+			return false;
+		}
 		const currentFile = context.state.field(editorInfoField).file;
 		if (currentFile === null) {
 			return false;
@@ -38,12 +40,15 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 		//		// this also includes tags from frontmatter
 		// 	});
 		// }
-		if (meta?.tags === null) {
+		if (meta === null) {
+			return false;
+		}
+		if (meta.tags === undefined) {
 			return false;
 		}
 		const sectionStart = descriptionHeader.to;
 		const sectionEnd = this.commandNode.from;
-		for (let tag of meta?.tags!) {
+		for (const tag of meta.tags) {
 			if (tag.position.start.offset >= sectionEnd) {
 				continue;
 			} 
@@ -52,10 +57,10 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 			} 
 			// look up out own meta info about it
 			const info = context.plugin.info.getMetadata(tag.tag.slice(1), this.frontMatterSection);
-			if (info !== null && info.hasOwnProperty("prompt")) {
-				if (info!.prompt !== null && info!.prompt.length > 0) {
+			if (info?.prompt !== undefined) {
+				if (info.prompt !== null && info.prompt.length > 0) {
 					// explicitly null or empty prompt means ignore this
-					descriptors.add(info!.prompt);
+					descriptors.add(info.prompt);
 				}
 			} else {
 				const slash = tag.tag.indexOf("/");
@@ -70,6 +75,9 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 	}
 
 	private findDescriptionHeader(context: ViewPluginContext<Host>): SyntaxNode | null {
+		if (this.commandNode === undefined) {
+			return null;
+		}
 		let scan: SyntaxNode | null = this.commandNode;
 		const targetHeaderMatch = new RegExp(`^#+\\s+${this.calculateDescriptionHeaderName(context)}`);
 
@@ -110,7 +118,7 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 		}
 	}
 
-	private calculateDescriptionHeaderName(context: ViewPluginContext<Host>): string {
+	private calculateDescriptionHeaderName(_context: ViewPluginContext<Host>): string {
 		// XXX default from plugin settings
 		let name: string = "Description";
 		if (this.parameters.header) {

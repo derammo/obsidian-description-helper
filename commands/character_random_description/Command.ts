@@ -22,7 +22,11 @@ export class Command extends DescriptorsCommand {
 	}
 
 	buildWidget(context: ViewPluginContext<Host>): void {
-		let descriptors = this.createDescriptorsCollection();
+		if (this.commandNode === undefined) {
+			return;
+		}
+
+		const descriptors = this.createDescriptorsCollection();
 		this.gatherDescriptionSection(descriptors, context);
 
 		// create button that will request more descriptors based on these

@@ -5,7 +5,7 @@ import { MetadataCache, TFile } from "obsidian";
 export interface Settings {
     defaultHide: boolean;
     defaultDim: boolean;
-};
+}
 
 export const DEFAULT_SETTINGS: Settings = {
     defaultHide: true,
@@ -25,4 +25,4 @@ export interface Host extends MinimalCommandHost<Host> {
  
     // pass through to Obsidian API
     metadataCache: MetadataCache;
-};
+}

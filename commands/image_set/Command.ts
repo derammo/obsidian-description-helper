@@ -17,6 +17,9 @@ export class Command extends ParsedCommand<Host> {
 	}
 
 	buildWidget(context: ViewPluginContext<Host>): void {
+		if (this.commandNode === undefined) {
+			return;
+		}
 		const text = new ButtonWidget(context.plugin, this);
 		context.builder.add(this.commandNode.from-1, this.commandNode.from-1, Decoration.widget({ widget: text }));
 		WidgetFormatter.markBasedOnDefaults(context, this);
