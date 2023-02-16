@@ -57,11 +57,14 @@ export class ButtonWidget extends WidgetType {
 		const host = this.host;
 
 		host.registerDomEvent(control, "click", async (_event: Event) => {
-			// erase all image references, in reverse order
-			this.imageReferences.reduceRight((_, imageReference: ImageReference) => {
-				imageReference.erase(view);
-				return imageReference;
-			});
+			if (this.imageReferences.length === 0) {
+				return;
+			}
+
+			// erase all image references, in reverse order (REVISIT: why did reduceRight not work?)
+			for (let i=this.imageReferences.length-1; i>=0; i--) {
+				this.imageReferences[i].erase(view);
+			}
 
 			// make sure we secure the file
 			const file: TFile = await this.imageReference.downloadRemoteImage(host, view);
@@ -71,6 +74,9 @@ export class ButtonWidget extends WidgetType {
 
 			// don't let this be on the same line as an image set, because we are about to destroy those
 			this.imageReferences.first()?.insertLineBreak(view);
+
+			// don't do this again if we somehow get called again
+			this.imageReferences = [];
 		});
 		return control;
 	}

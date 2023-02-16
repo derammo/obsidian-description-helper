@@ -114,16 +114,19 @@ export class ImageReference {
         switch (scannedNode.type.name) {
           case 'string_url':
             if (view.state.doc.sliceString(scannedNode.from, scannedNode.to) === url) {
-              urls.push(scannedNode.node);
+              urls.unshift(scannedNode.node);
             }
             break;
         }
       }
     });
-    // replace all image references, in reverse order
-    urls.reduceRight((_, url: SyntaxNode) => {
+    if (urls.length === 0) {
+      return;
+    }
+    // replace all image references, which are in reverse order
+    for (let url of urls) {
       view.dispatch({ changes: { from: url.from, to: url.to, insert: file.path } });
       return url;
-    });
+    };
   }
 }
