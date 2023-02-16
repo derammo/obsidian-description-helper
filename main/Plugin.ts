@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
 // stable services our Obsidian plugin provides to its components
 export interface Host extends MinimalCommandHost<Host> {
     // data specific to this plugin
-    settings: Settings;
+    settings: Settings | undefined;
     info: DerAmmoKnownTagsAPI;
 
     // functionality specific to this plugin

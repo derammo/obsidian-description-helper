@@ -25,8 +25,6 @@ export const openai = new OpenAIApi(openaiConfiguration);
 export default class DescriptionHelperPlugin extends ObsidianPluginBase<Settings> implements Host {
 	info: DerAmmoKnownTagsAPI;
 	commands: CommandDispatcher<Host> = new CommandDispatcher<Host>();
-	settingsDirty: boolean;
-	settings: Settings;
 
 	get metadataCache() {
 		return this.app.metadataCache;
