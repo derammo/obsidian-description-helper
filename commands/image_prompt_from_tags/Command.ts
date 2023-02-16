@@ -9,9 +9,6 @@ import { WidgetFormatter } from 'main/WidgetFormatter';
 
 import { EditWidget } from "./EditWidget";
 
-// generated images can be recognized from this prefix in their ![alt text](url)
-export const ALT_TEXT_PREFIX = "generated DALL-E ";
-
 const COMMAND_REGEX = /^\s*!image-prompt-from-tags(?:\s(.*)|$)/;
 
 export class Command extends DescriptorsCommand {

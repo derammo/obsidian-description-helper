@@ -1,8 +1,6 @@
-import { SyntaxNode } from "derobst/command";
-import { ParsedCommandWithParameters } from "derobst/command";
+import { ParsedCommandWithParameters, SyntaxNode } from "derobst/command";
 import { HASHTAG_WHOLE_PREFIX, HEADER_NODE_PREFIX, QUOTE_NODE_PREFIX, QUOTE_REGEX } from "derobst/internals";
 import { ViewPluginContext } from "derobst/view";
-import { editorInfoField } from "obsidian";
 import { Host } from "./Plugin";
 
 // base for commands that gather descriptors (short pieces of prompts) from tags and quotes in 

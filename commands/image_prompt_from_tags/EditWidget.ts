@@ -1,8 +1,7 @@
-import { TextIterator } from "@codemirror/state";
 import { CommandWidgetBase, EditorView, ParsedCommand, SyntaxNode } from "derobst/command";
+import { ImageReference } from "image_generation/ImageReference";
+import { ImageSet } from "image_generation/ImageSet";
 import { Host } from "main/Plugin";
-
-import { ALT_TEXT_PREFIX } from "./Command";
 
 export class EditWidget extends CommandWidgetBase<Host> {
 	generated: string;
@@ -10,9 +9,9 @@ export class EditWidget extends CommandWidgetBase<Host> {
 	currentValue: string = "";
 
 	constructor(
-		host: Host, 
-		command: ParsedCommand<Host>, 
-		public quoteStart: SyntaxNode, 
+		host: Host,
+		command: ParsedCommand<Host>,
+		public quoteStart: SyntaxNode,
 		public quoteEnd: SyntaxNode,
 		public descriptors: Set<string>) {
 		super(host, command);
@@ -35,11 +34,30 @@ export class EditWidget extends CommandWidgetBase<Host> {
 
 	buildTextEdit(view: EditorView): HTMLElement {
 		const promptParts: string[] = Array.from(this.descriptors);
-		promptParts.push("portrait");
-		promptParts.push("colored pencil");
-		promptParts.push("realistic");
+
+		// eslint-disable-next-line no-constant-condition
+		if (false) {
+			promptParts.push("medium shot");
+			promptParts.push("mid-shot");
+			promptParts.push("head & shoulders shot");
+		} else {
+			promptParts.push("long shot");
+			promptParts.push("wide shot");
+			promptParts.push("full shot");
+		}
+
+		// eslint-disable-next-line no-constant-condition
+		if (true) {
+			promptParts.push("colored pencil");
+			promptParts.push("realistic");
+		} else {
+			promptParts.push("field journal line art");
+		}
+
 		promptParts.push("white background");
-		this.generated = promptParts.join(", ");
+
+		// XXX configure prefix
+		this.generated = `medieval ${promptParts.join(", ")}`;
 
 		const control = document.createElement("textarea");
 		control.style.flexGrow = "1";
@@ -81,50 +99,20 @@ export class EditWidget extends CommandWidgetBase<Host> {
 
 	buildButton(view: EditorView): HTMLElement {
 		const control = document.createElement("button");
-		const prompt = (this.currentValue.length > 0)? this.currentValue: this.generated;
-		
+		const prompt = (this.currentValue.length > 0) ? this.currentValue : this.generated;
+
 		control.innerText = "AI draw";
 		control.style.marginLeft = "0.5em";
 
 		this.host.registerDomEvent(control, "click", async (_event: Event) => {
 			this.host.generateImages(prompt)
-			.then((results: { generationId: string, urls: string[] }) => {
-				if (this.command.commandNode === undefined) {
-					return;
-				}
-				// XXX config
-				const presentSize = 256;
-				let prefix = "\n\n";
-				let insertionLocation: number = this.command.commandNode.to + 1;
-				const walk: TextIterator = view.state.doc.iterRange(insertionLocation);
-				// skip over entire line as enumeration
-				walk.next();
-				if (!walk.done) {
-					if (walk.lineBreak) {
-						// we don't know the size of a LF or CRLF sequence, so we have to measure it like this
-						const offset = walk.value.length;
-						walk.next();
-						if (!walk.done) {
-							if (walk.lineBreak) {
-								// reuse empty line following our command
-								insertionLocation += offset;
-								prefix = "\n";
-							}
-						}
-					}
-				}
-				const chunks: string[] = [ `${prefix}\`!image-set ${results.generationId} ${prompt}\` ` ];
-				results.urls.forEach((url, imageIndex) => {
-					chunks.push(`${imageIndex > 0?" ":""}![${ALT_TEXT_PREFIX}${results.generationId} ${imageIndex + 1}|${presentSize}](${url})`);
+				.then((images: ImageSet) => {
+					ImageReference.displayImages(this.host, view, this.command.commandNode, images);
+				})
+				.then(() => {
+					// XXX optionally, create an obsidian vault file /DALL-E/${generationId}.md containing the prompt info and links to the images
+					this.command.handleUsed(view);
 				});
-
-				view.dispatch({
-					changes: { from: insertionLocation, to: insertionLocation, insert: chunks.join("") }
-				});
-
-				// XXX optionally, create an obsidian vault file /DALL-E/${generationId}.md containing the prompt info and links to the images
-				this.command.handleUsed(view);			
-			});
 		});
 		return control;
 	}
@@ -138,8 +126,9 @@ export class EditWidget extends CommandWidgetBase<Host> {
 	}
 
 	async replaceQuote(view: EditorView, value: string) {
-		view.dispatch({ 
+		view.dispatch({
 			changes: { from: this.quoteStart.from + 2, to: this.quoteEnd.to, insert: value }
 		});
 	}
 }
+
