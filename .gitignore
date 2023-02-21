@@ -24,3 +24,14 @@ data.json
 # npm build and pack
 /lib
 *.tgz
+
+# example vault
+examples/.obsidian/plugins/*
+examples/.obsidian/*.json
+!examples/.obsidian/community-plugins.json
+
+# required plugin for demo
+!examples/.obsidian/plugins/obsidian-derammo-knowntags/
+
+# downloaded images
+examples/DALL-E/*.png

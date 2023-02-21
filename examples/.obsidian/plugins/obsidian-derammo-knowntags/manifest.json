@@ -1,0 +1,11 @@
+{
+	"id": "obsidian-derammo-knowntags",
+	"name": "Known Tags",
+	"version": "1.0.18",
+	"minAppVersion": "0.15.0",
+	"description": "Obsidian plugin used to track metadata about known tag values and provide UI elements based on that data.",
+	"author": "derammo",
+	"authorUrl": "https://github.com/derammo",
+	"fundingUrl": "https://paypal.me/derammo",
+	"isDesktopOnly": true
+}

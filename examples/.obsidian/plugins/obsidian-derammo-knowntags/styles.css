@@ -1,0 +1,7 @@
+img + span.cm-inline-code > span.derammo-known-tags.derammo-known-tags-auto-dim {
+    color: var(--text-faint);
+}
+
+img + span.cm-inline-code > span.derammo-known-tags.derammo-known-tags-auto-hide {
+    display: none;
+}

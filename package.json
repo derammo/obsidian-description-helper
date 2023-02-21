@@ -7,7 +7,12 @@
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"lint": "eslint . --ext .ts"
+		"lint": "eslint . --ext .ts",
+		"preinstall": "git submodule update --init --recursive",
+		"prepack": "npm run build",
+		"update-examples": "npm pack && run-script-os",
+		"update-examples:windows": "mkdir examples\\.obsidian\\plugins\\%npm_package_name% 2>NUL & tar -xvzf %npm_package_name%-%npm_package_version%.tgz -C examples\\.obsidian\\plugins\\%npm_package_name% --strip-components=1",
+		"update-examples:default": "mkdir -p examples/.obsidian/plugins/${npm_package_name} && tar -xvzf ${npm_package_name}-${npm_package_version}.tgz -C examples/.obsidian/plugins/${npm_package_name} --strip-components=1"
 	},
 	"keywords": [],
 	"author": "derammo",
@@ -28,6 +33,7 @@
 		"obsidian-derammo-knowntags-api": "^1.0.17",
 		"openai": "^3.1.0",
 		"pngjs": "^6.0.0",
+		"run-script-os": "^1.1.6",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
 	},
