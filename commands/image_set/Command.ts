@@ -1,4 +1,4 @@
-import { Decoration, ParsedCommand } from "derobst/command";
+import { Decoration, ParsedCommand, SyntaxNodeRef } from "derobst/command";
 import { ViewPluginContext } from "derobst/view";
 
 import { Host } from "main/Plugin";
@@ -16,13 +16,10 @@ export class Command extends ParsedCommand<Host> {
 		return text.match(IMAGE_SET_COMMAND_REGEX) !== null;
 	}
 
-	buildWidget(context: ViewPluginContext<Host>): void {
-		if (this.commandNode === undefined) {
-			return;
-		}
-		const text = new ButtonWidget(context.plugin, this);
-		context.builder.add(this.commandNode.from-1, this.commandNode.from-1, Decoration.widget({ widget: text }));
-		WidgetFormatter.markBasedOnDefaults(context, this);
+	buildWidget(context: ViewPluginContext<Host>, commandNodeRef: SyntaxNodeRef): void {
+		const text = new ButtonWidget(context, this);
+		context.builder.add(commandNodeRef.from-1, commandNodeRef.from-1, Decoration.widget({ widget: text }));
+		WidgetFormatter.markBasedOnDefaults(context, this, commandNodeRef);
 	}
 }
 

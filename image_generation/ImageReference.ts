@@ -11,6 +11,7 @@ import { Host } from 'main/Plugin';
 import { TFile } from 'obsidian';
 
 import { ImageSet } from './ImageSet';
+import { TextRange } from 'derobst/view';
 
 // generated images can be recognized from this prefix in their ![alt text](url)
 export const ALT_TEXT_PREFIX = 'generated DALL-E ';
@@ -110,7 +111,7 @@ export class ImageReference {
 
 	static displayImages(
 		host: Host, view: EditorView,
-		location: SyntaxNode | ImageReference | undefined, images: ImageSet): void {
+		location: TextRange | ImageReference | undefined, images: ImageSet): void {
 		if (location === undefined) {
 			return;
 		}

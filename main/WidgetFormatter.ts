@@ -1,5 +1,6 @@
 import { Decoration, ParsedCommand, ParsedCommandWithParameters } from "derobst/command";
 import { ExtensionContext } from "derobst/main";
+import { TextRange } from "derobst/view";
 import { Host } from "./Plugin";
 
 export class WidgetFormatter {
@@ -26,26 +27,23 @@ export class WidgetFormatter {
         return { hide, dim };
     }
 
-    static markBasedOnParameters(context: ExtensionContext<Host>, command: ParsedCommandWithParameters<Host>) {
-        WidgetFormatter.autoDimOrHide(context, command, WidgetFormatter.calculateUnfocusedStyle(context, command));
+    static markBasedOnParameters(context: ExtensionContext<Host>, command: ParsedCommandWithParameters<Host>, range: TextRange) {
+        WidgetFormatter.autoDimOrHide(context, range, WidgetFormatter.calculateUnfocusedStyle(context, command));
     }
 
-    static markBasedOnDefaults(context: ExtensionContext<Host>, command: ParsedCommand<Host>) {
+    static markBasedOnDefaults(context: ExtensionContext<Host>, _command: ParsedCommand<Host>, range: TextRange) {
         // get default behavior from settings
-        WidgetFormatter.autoDimOrHide(context, command, { dim: context.plugin.settings.defaultDim, hide: context.plugin.settings.defaultHide });
+        WidgetFormatter.autoDimOrHide(context, range, { dim: context.plugin.settings.defaultDim, hide: context.plugin.settings.defaultHide });
     }
 
     // use style that implements the selected behavior when not focused
-    private static autoDimOrHide(context: ExtensionContext<Host>, command: ParsedCommand<Host>, { dim, hide }: { dim: boolean; hide: boolean; }) {
-        if (command.commandNode === undefined) {
-            return;
-        }
+    private static autoDimOrHide(context: ExtensionContext<Host>, range: TextRange, { dim, hide }: { dim: boolean; hide: boolean; }) {
         if (hide) {
-            context.builder.add(command.commandNode.from, command.commandNode.to, Decoration.mark({ attributes: { "class": "derammo-description-helper derammo-description-helper-auto-hide" } }));
+            context.builder.add(range.from, range.to, Decoration.mark({ attributes: { "class": "derammo-description-helper derammo-description-helper-auto-hide" } }));
         } else if (dim) {
-            context.builder.add(command.commandNode.from, command.commandNode.to, Decoration.mark({ attributes: { "class": "derammo-description-helper derammo-description-helper-auto-dim" } }));
+            context.builder.add(range.from, range.to, Decoration.mark({ attributes: { "class": "derammo-description-helper derammo-description-helper-auto-dim" } }));
         } else {
-            context.builder.add(command.commandNode.from, command.commandNode.to, Decoration.mark({ attributes: { "class": "derammo-description-helper" } }));
+            context.builder.add(range.from, range.to, Decoration.mark({ attributes: { "class": "derammo-description-helper" } }));
         }
     }
 }

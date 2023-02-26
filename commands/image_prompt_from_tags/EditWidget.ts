@@ -1,4 +1,5 @@
 import { CommandWidgetBase, EditorView, ParsedCommand, SyntaxNode } from "derobst/command";
+import { WidgetContext } from "derobst/interfaces";
 import { ImageReference } from "image_generation/ImageReference";
 import { ImageSet } from "image_generation/ImageSet";
 import { Host } from "main/Plugin";
@@ -9,12 +10,12 @@ export class EditWidget extends CommandWidgetBase<Host> {
 	currentValue: string = "";
 
 	constructor(
-		host: Host,
+		context: WidgetContext<Host>,
 		command: ParsedCommand<Host>,
 		public quoteStart: SyntaxNode,
 		public quoteEnd: SyntaxNode,
 		public descriptors: Set<string>) {
-		super(host, command);
+		super(context, command);
 	}
 
 	toDOM(view: EditorView): HTMLElement {
@@ -113,7 +114,9 @@ export class EditWidget extends CommandWidgetBase<Host> {
 			this.host.incrementRunningRequestCount();
 			this.host.generateImages(prompt)
 				.then((images: ImageSet) => {
-					ImageReference.displayImages(this.host, view, this.command.commandNode, images);
+					for (const range of this.fetchCurrentRanges()) {
+						ImageReference.displayImages(this.host, view, range, images);
+					}
 				})
 				.then(() => {
 					// XXX optionally, create an obsidian vault file /DALL-E/${generationId}.md containing the prompt info and links to the images

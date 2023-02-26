@@ -1,4 +1,4 @@
-import { Decoration } from "derobst/command";
+import { Decoration, SyntaxNodeRef } from "derobst/command";
 
 import { ButtonWidget } from "./ButtonWidget";
 import { ViewPluginContext } from "derobst/view";
@@ -21,18 +21,14 @@ export class Command extends DescriptorsCommand {
 		return text.match(COMMAND_REGEX) !== null;
 	}
 
-	buildWidget(context: ViewPluginContext<Host>): void {
-		if (this.commandNode === undefined) {
-			return;
-		}
-
+	buildWidget(context: ViewPluginContext<Host>, commandNodeRef: SyntaxNodeRef): void {
 		const descriptors = this.createDescriptorsCollection();
-		this.gatherDescriptionSection(descriptors, context);
+		this.gatherDescriptionSection(descriptors, context, commandNodeRef);
 
 		// create button that will request more descriptors based on these
-		const text = new ButtonWidget(context.plugin, this, descriptors);
-		context.builder.add(this.commandNode.from-1, this.commandNode.from-1, Decoration.widget({ widget: text }));
-		WidgetFormatter.markBasedOnParameters(context, this);
+		const text = new ButtonWidget(context, this, descriptors);
+		context.builder.add(commandNodeRef.from-1, commandNodeRef.from-1, Decoration.widget({ widget: text }));
+		WidgetFormatter.markBasedOnParameters(context, this, commandNodeRef);
 	}
 }
 

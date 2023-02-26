@@ -1,4 +1,4 @@
-import { ParsedCommandWithParameters, SyntaxNode } from "derobst/command";
+import { ParsedCommandWithParameters, SyntaxNode, SyntaxNodeRef } from "derobst/command";
 import { HASHTAG_WHOLE_PREFIX, HEADER_NODE_PREFIX, QUOTE_NODE_PREFIX, QUOTE_REGEX } from "derobst/internals";
 import { ViewPluginContext } from "derobst/view";
 import { Host } from "./Plugin";
@@ -14,8 +14,8 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 		return new Set<string>();
 	}
 
-	protected gatherDescriptionSection(descriptors: Set<string>, context: ViewPluginContext<Host>): boolean {
-		const descriptionHeader: SyntaxNode | null = this.findDescriptionHeader(context);
+	protected gatherDescriptionSection(descriptors: Set<string>, context: ViewPluginContext<Host>, commandNodeRef: SyntaxNodeRef): boolean {
+		const descriptionHeader: SyntaxNode | null = this.findDescriptionHeader(context, commandNodeRef);
 		if (descriptionHeader !== null) {
 			// this.gatherDescriptorsFromTags(descriptors, descriptionHeader, context);
 			this.ingestDescriptionSection(descriptors, descriptionHeader, context);
@@ -24,11 +24,8 @@ export abstract class DescriptorsCommand extends ParsedCommandWithParameters<Hos
 		return false;
 	}
 
-	private findDescriptionHeader(context: ViewPluginContext<Host>): SyntaxNode | null {
-		if (this.commandNode === undefined) {
-			return null;
-		}
-		let scan: SyntaxNode | null = this.commandNode;
+	private findDescriptionHeader(context: ViewPluginContext<Host>, commandNodeRef: SyntaxNodeRef): SyntaxNode | null {
+		let scan: SyntaxNode | null = commandNodeRef.node;
 		const targetHeaderMatch = new RegExp(`^#+\\s+${this.calculateDescriptionHeaderName(context)}`);
 
 		while (scan !== null) {

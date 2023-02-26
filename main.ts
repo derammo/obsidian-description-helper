@@ -49,15 +49,19 @@ export default class DescriptionHelperPlugin extends ObsidianPluginBase<Settings
 		this.statusBar = this.addStatusBarItem();
 		this.statusBar.setText('');
 		this.registerContextMenuDeleteElement();
+		this.registerTextRangeTracker();
 
-		getDerAmmoKnownTagsAPI(5000).then((info) => {
-			this.info = info;
+		getDerAmmoKnownTagsAPI(5000)
+			.then(this.onApiReady.bind(this));
+	}
 
-			this.buildCommands();
-			this.registerViewPlugin(createCommandViewPlugin(this));
-			this.registerEditorExtension(createGeneratedImagesDecorationsStateField(this));
-			this.registerMarkdownPostProcessor(createCommandRemovalPostProcessor(this.commands));
-		});
+	private async onApiReady(info: DerAmmoKnownTagsAPI) {
+		this.info = info;
+
+		this.buildCommands();
+		this.registerViewPlugin(createCommandViewPlugin(this));
+		this.registerEditorExtension(createGeneratedImagesDecorationsStateField(this));
+		this.registerMarkdownPostProcessor(createCommandRemovalPostProcessor(this.commands));
 	}
 
 	onunload() {

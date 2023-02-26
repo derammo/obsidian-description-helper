@@ -1,4 +1,5 @@
 import { CommandWidgetBase, EditorView, ParsedCommand } from "derobst/command";
+import { WidgetContext } from "derobst/interfaces";
 import { Host } from "main/Plugin";
 import { CreateCompletionResponseChoicesInner } from "openai";
 
@@ -6,8 +7,8 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 	generated: string;
 	previousValue: string | undefined;
 
-	constructor(host: Host, command: ParsedCommand<Host>, public descriptors: Set<string>) {
-		super(host, command);
+	constructor(context: WidgetContext<Host>, command: ParsedCommand<Host>, public descriptors: Set<string>) {
+		super(context, command);
 	}
 
 	toDOM(view: EditorView): HTMLElement {
@@ -67,15 +68,14 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 			}
 
 			const generated = `${lines.join("\n")}\n\n`;
-			if (this.command.commandNode === undefined) {
-				return;
+			for (const range of this.fetchCurrentRanges()) {
+				view.dispatch({ 
+					changes: { 
+						from: range.from-1, 
+						to: range.from-1, 
+						insert: generated }
+				});			
 			}
-			view.dispatch({ 
-				changes: { 
-					from: this.command.commandNode.from-1, 
-					to: this.command.commandNode.from-1, 
-					insert: generated }
-			});			
 		})
 		.finally(() => {
 			this.host.decrementRunningRequestCount();

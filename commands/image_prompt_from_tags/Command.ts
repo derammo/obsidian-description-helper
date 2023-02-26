@@ -1,8 +1,6 @@
-import { Decoration } from '@codemirror/view';
-import { SyntaxNode } from '@lezer/common/dist/tree';
-
 import { HEADER_NODE_PREFIX, QUOTE_NODE_CONTAINING_COMMAND_PREFIX, QUOTE_NODE_PREFIX, QUOTE_TEXT_NODE_PREFIX } from "derobst/internals";
 import { ViewPluginContext } from 'derobst/view';
+import { Decoration, SyntaxNodeRef, SyntaxNode } from 'derobst/command';
 import { DescriptorsCommand } from "main/DescriptorsCommand";
 import { Host } from 'main/Plugin';
 import { WidgetFormatter } from 'main/WidgetFormatter';
@@ -24,11 +22,8 @@ export class Command extends DescriptorsCommand {
 		return text.match(COMMAND_REGEX) !== null;
 	}
 
-	buildWidget(context: ViewPluginContext<Host>): void {
-		if (this.commandNode === undefined) {
-			return;
-		}
-		let scan: SyntaxNode | null = this.commandNode;
+	buildWidget(context: ViewPluginContext<Host>, commandNodeRef: SyntaxNodeRef): void {
+		let scan: SyntaxNode | null = commandNodeRef.node;
 		let quoteEnd: SyntaxNode | null = null;
 		while (scan !== null) {
 			if (scan.type.name.startsWith(HEADER_NODE_PREFIX)) {
@@ -49,7 +44,6 @@ export class Command extends DescriptorsCommand {
 					break;
 				}
 			}
-
 			scan = scan.prevSibling;
 		}
 		
@@ -69,10 +63,10 @@ export class Command extends DescriptorsCommand {
 		}
 
 		const descriptors = this.createDescriptorsCollection();
-		this.gatherDescriptionSection(descriptors, context);
-		const text = new EditWidget(context.plugin, this, quoteStart, quoteEnd, descriptors);
-		context.builder.add(quoteStart.from, this.commandNode.from, Decoration.replace({ widget: text }));
-		WidgetFormatter.markBasedOnParameters(context, this);
+		this.gatherDescriptionSection(descriptors, context, commandNodeRef);
+		const text = new EditWidget(context, this, quoteStart, quoteEnd, descriptors);
+		context.builder.add(quoteStart.from, commandNodeRef.from, Decoration.replace({ widget: text }));
+		WidgetFormatter.markBasedOnParameters(context, this, commandNodeRef);
 	}
 }
 
