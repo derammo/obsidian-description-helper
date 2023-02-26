@@ -9,25 +9,24 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 
 	toDOM(view: EditorView): HTMLElement {
 		const span = document.createElement("span");
-		span.innerText = "Image Set";
-		span.style.verticalAlign = "top";
+		span.classList.add("derammo-imageset-container");
+		const label = document.createElement("span");
+		label.classList.add("derammo-imageset-label");
+		label.innerText = "Image Set";
 		for (const range of this.fetchCurrentRanges()) {
 			const text = view.state.doc.sliceString(range.from, range.to);
 			const space = text.indexOf(" ");
-			span.ariaLabel = (space < 0) ? text : text.substring(space + 1);
+			label.ariaLabel = (space < 0) ? text : text.substring(space + 1);
 		}
+		span.appendChild(label);
 		span.appendChild(this.buildButtonSVG(view));
 		return span;
 	}
 
 	buildButtonSVG(view: EditorView): HTMLElement {
 		const control = document.createElement("button");
+		control.classList.add("derammo-delete-button", "derammo-button");
 		control.ariaLabel = "Discard Set";
-		control.style.width = "2em";
-		control.style.height = "2em";
-		control.style.padding = "0.2em";
-		control.style.verticalAlign = "bottom";
-		control.style.marginLeft = "0.5em";
 
 		const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 		svg.setAttr("width", "100%");

@@ -22,18 +22,7 @@ export class ButtonWidget extends WidgetType {
 
 	toDOM(view: EditorView): HTMLElement {
 		const span = document.createElement("span");
-		span.classList.add("derammo-description-helper");
-		span.classList.add("derammo-description-helper-auto-hide");
-		// span.style.display = "inline-flex";
-		span.style.flexDirection = "column";
-		span.style.rowGap = "5px";
-		span.style.padding = "5px";
-		span.style.paddingBottom = "0px";
-		span.style.verticalAlign = "top";
-	
-		span.style.width = "70px";
-		span.style.marginLeft = "-70px";
-
+		span.classList.add("derammo-description-helper", "derammo-description-helper-auto-hide", "derammo-imagebuttons-container");
 		span.appendChild(this.buildChooseButton(view));
 		span.appendChild(this.buildKeepButton(view));
 		span.appendChild(this.buildZoomOutButton(view));
@@ -162,10 +151,7 @@ export class ButtonWidget extends WidgetType {
 
 	buildFlexButton(): HTMLButtonElement {
 		const control = document.createElement("button");
-		control.style.display = "flex";
-		control.style.flexGrow = "0";
-		control.style.flexShrink = "0";
-		control.style.flexBasis = "auto";
+		control.classList.add("derammo-image-button", "derammo-button");
 		return control;
 	}
 }

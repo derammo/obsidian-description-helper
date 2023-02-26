@@ -20,13 +20,7 @@ export class EditWidget extends CommandWidgetBase<Host> {
 
 	toDOM(view: EditorView): HTMLElement {
 		const line = document.createElement("div");
-		line.style.width = "100%";
-		line.style.marginTop = "-24px";
-		line.style.marginBottom = "-24px";
-		// line.style.marginTop = "calc(0px - var(--line-height-normal) )";
-		// line.style.marginBottom = "calc(0px - var(--line-height-normal))";
-		line.style.width = "100%";
-		line.style.display = "flex";
+		line.classList.add("derammo-imageprompt-container");
 		line.appendChild(this.buildTextEdit(view));
 		line.appendChild(this.buildButton(view));
 		return line;
@@ -64,8 +58,7 @@ export class EditWidget extends CommandWidgetBase<Host> {
 		this.generated = `${prefix}${promptParts.join(", ")}`;
 
 		const control = document.createElement("textarea");
-		control.style.flexGrow = "1";
-		control.style.height = "6em";
+		control.classList.add("derammo-imageprompt-control");
 
 		control.placeholder = this.generated;
 		this.loadContent(view, control);
@@ -105,10 +98,10 @@ export class EditWidget extends CommandWidgetBase<Host> {
 
 	buildButton(view: EditorView): HTMLElement {
 		const control = document.createElement("button");
+		control.classList.add("derammo-imageprompt-button", "derammo-button");
 		const prompt = (this.currentValue.length > 0) ? this.currentValue : this.generated;
 
 		control.innerText = "AI draw";
-		control.style.marginLeft = "0.5em";
 
 		this.host.registerDomEvent(control, "click", async (_event: Event) => {
 			this.host.incrementRunningRequestCount();

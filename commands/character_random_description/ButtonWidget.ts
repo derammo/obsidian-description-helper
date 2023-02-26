@@ -13,12 +13,14 @@ export class ButtonWidget extends CommandWidgetBase<Host> {
 
 	toDOM(view: EditorView): HTMLElement {
 		const span = document.createElement("span");
+		span.classList.add("derammo-describe-container");
 		span.appendChild(this.buildButton(view));
 		return span;
 	}
 
 	buildButton(view: EditorView): HTMLElement {
 		const control = document.createElement("button");
+		control.classList.add("derammo-describe-button", "derammo-button");
 		control.innerText = "AI describe";
 		this.host.registerDomEvent(control, "click", async (_event: Event) => {
 			this.queryDavinci3(view)

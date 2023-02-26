@@ -13,3 +13,54 @@ span.cm-formatting-link-string + span.derammo-description-helper-auto-hide {
 img + span.derammo-description-helper.derammo-description-helper-auto-hide {
     display: inline-flex;
 }
+
+.derammo-imageprompt-container {
+    width: 100%;
+    margin-top: -24px;
+    margin-bottom: -24px;
+    /* 
+    margin-top: calc(0px - var(--line-height-normal)); 
+    margin-bottom: calc(0px - var(--line-height-normal));
+    */
+    width: 100%;
+    display: flex;
+}
+
+.derammo-imageprompt-button {
+    margin-left: 0.5em;
+}
+
+.derammo-describe-button:hover, .derammo-imageprompt-button:hover {
+    cursor: pointer;
+}
+
+.derammo-imageprompt-control {
+    flex-grow: 1;
+    height: 6em;
+}
+
+.derammo-imagebuttons-container {
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 0.25em;
+    padding: 0.25em;
+    padding-bottom: 0em;
+    vertical-align: top;
+    width: 5em;
+    margin-left: -5em;
+}
+
+.derammo-image-button {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+}
+
+.derammo-imageset-container {
+    vertical-align: top;
+}
+
+.derammo-imageset-label {
+    margin-right: 0.2em;
+}

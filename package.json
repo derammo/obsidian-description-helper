@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-derammo-description-helper",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Provides UI elements to suggest additional descriptive terms using AI.  Requires 'Known Tags' plugin 'obsidian-derammo-knowntags'.",
 	"main": "main.js",
 	"scripts": {
