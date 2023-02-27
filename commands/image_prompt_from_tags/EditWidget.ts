@@ -1,5 +1,6 @@
 import { CommandWidgetBase, EditorView, ParsedCommand, SyntaxNode } from "derobst/command";
 import { WidgetContext } from "derobst/interfaces";
+import { UpdatedTextRange } from "derobst/view";
 import { ImageReference } from "image_generation/ImageReference";
 import { ImageSet } from "image_generation/ImageSet";
 import { Host } from "main/Plugin";
@@ -8,14 +9,18 @@ export class EditWidget extends CommandWidgetBase<Host> {
 	generated: string;
 	previousValue: string | undefined;
 	currentValue: string = "";
+	quoteStart: UpdatedTextRange;
+	quoteEnd: UpdatedTextRange;
 
 	constructor(
 		context: WidgetContext<Host>,
 		command: ParsedCommand<Host>,
-		public quoteStart: SyntaxNode,
-		public quoteEnd: SyntaxNode,
+		quoteStart: SyntaxNode,
+		quoteEnd: SyntaxNode,
 		public descriptors: Set<string>) {
 		super(context, command);
+		this.quoteStart = context.plugin.tracking.register(context.state, quoteStart);
+		this.quoteEnd = context.plugin.tracking.register(context.state, quoteEnd);
 	}
 
 	toDOM(view: EditorView): HTMLElement {
@@ -124,17 +129,22 @@ export class EditWidget extends CommandWidgetBase<Host> {
 	}
 
 	private loadContent(view: EditorView, control: HTMLTextAreaElement) {
-		const content = view.state.doc.sliceString(this.quoteStart.from + 2, this.quoteEnd.to);
-		if (content.length > 0) {
-			this.currentValue = content;
-			control.value = content;
+		const start = this.quoteStart.fetchCurrentRange();
+		const end = this.quoteEnd.fetchCurrentRange();
+		if (start === null || end === null || end.to <= (start.from + 2)) {
+			return;
 		}
+		const content = view.state.doc.sliceString(start.from + 2, end.to);
+		this.currentValue = content;
+		control.value = content;
 	}
 
 	async replaceQuote(view: EditorView, value: string) {
-		view.dispatch({
-			changes: { from: this.quoteStart.from + 2, to: this.quoteEnd.to, insert: value }
-		});
+		for (const range of this.fetchCurrentRanges()) {
+			view.dispatch({
+				changes: { from: range.from + 2, to: range.to, insert: value }
+			});
+		}
 	}
 }
 

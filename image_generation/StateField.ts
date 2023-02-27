@@ -1,8 +1,7 @@
 import { syntaxTree } from "@codemirror/language";
 import {
-	EditorState, Extension,
-	RangeSetBuilder,
-	StateField, Text, Transaction, Line
+	Extension, Line, RangeSetBuilder,
+	StateField, Text, Transaction
 } from "@codemirror/state";
 import {
 	Decoration,
@@ -12,6 +11,7 @@ import {
 import { SyntaxNode } from "@lezer/common";
 import { IMAGE_SET_COMMAND_REGEX } from "commands/image_set/Command";
 import { IMAGE_ALT_TEXT_NODE, INLINE_CODE_IN_QUOTE_NODE, INLINE_CODE_NODE, STRING_URL_NODE } from "derobst/internals";
+import { ViewPluginContext } from "derobst/view";
 import { Host } from "main/Plugin";
 import { editorLivePreviewField } from "obsidian";
 import { ButtonWidget } from "./ButtonWidget";
@@ -31,7 +31,7 @@ export function createGeneratedImagesDecorationsStateField(host: Host): StateFie
 				return Decoration.none;
 			}
 			const builder = new RangeSetBuilder<Decoration>();
-			walkTree(host, builder, state);
+			walkTree({ plugin: host, builder: builder, state: state });
 			return builder.finish();
 		},
 
@@ -45,7 +45,7 @@ export function createGeneratedImagesDecorationsStateField(host: Host): StateFie
 				// document not changed and we have already scannned it initially
 				return oldState;
 			}
-			walkTree(host, builder, transaction.state);
+			walkTree({ plugin: host, builder: builder, state: transaction.state });
 			return builder.finish();
 		},
 
@@ -64,7 +64,7 @@ function walkChanges(transaction: Transaction): void {
 	});
 }
 
-function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: EditorState) {
+function walkTree(context: ViewPluginContext<Host>) {
 	// accumulate all image references so that our buttons can share the collection
 	const imageReferences: ImageReference[] = [];
 
@@ -72,23 +72,23 @@ function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: Edito
 	let generationId: string = "";
 	let prompt: string = "";
 	let promptLine: Line;
-	syntaxTree(state).iterate({
+	syntaxTree(context.state).iterate({
 		enter(scannedNode) {
 			switch (scannedNode.type.name) {
 				case 'Document':
 					break;
 				case INLINE_CODE_NODE:
 				case INLINE_CODE_IN_QUOTE_NODE: {
-					const text = state.doc.sliceString(scannedNode.from, scannedNode.to);
+					const text = context.state.doc.sliceString(scannedNode.from, scannedNode.to);
 					const match = text.match(IMAGE_SET_COMMAND_REGEX);
 					if (match !== null) {
 						prompt = match[2];
-						promptLine = state.doc.lineAt(scannedNode.to);
+						promptLine = context.state.doc.lineAt(scannedNode.to);
 					}
 					break;
 				}
 				case IMAGE_ALT_TEXT_NODE: {
-					const text = state.doc.sliceString(scannedNode.from, scannedNode.to);
+					const text = context.state.doc.sliceString(scannedNode.from, scannedNode.to);
 					const match = text.match(ALT_TEXT_REGEX);
 					if (match !== null) {
 						altText = scannedNode.node;
@@ -107,14 +107,14 @@ function walkTree(host: Host, builder: RangeSetBuilder<Decoration>, state: Edito
 						console.log("STATE_UPDATE missing url close parenthesis");
 						break;
 					}
-					const urlLine = state.doc.lineAt(scannedNode.from);
+					const urlLine = context.state.doc.lineAt(scannedNode.from);
 					if (prompt.length > 0 && urlLine.number > (promptLine?.number ?? 0) + 2) {
 						// too far away to count as this image being in the image set
 						prompt = "";
 						break;
 					}
-					imageReferences.push(new ImageReference(state, generationId, prompt, altText, scannedNode.node, closeParen));
-					builder.add(closeParen.to, closeParen.to, Decoration.widget({ widget: new ButtonWidget(host, imageReferences) }));
+					imageReferences.push(new ImageReference(context, generationId, prompt, altText, scannedNode.node, closeParen));
+					context.builder.add(closeParen.to, closeParen.to, Decoration.widget({ widget: new ButtonWidget(context.plugin, imageReferences) }));
 					break;
 				}
 			}

@@ -102,7 +102,7 @@ export class ButtonWidget extends WidgetType {
 			if (images === undefined) {
 				return;
 			}
-			ImageReference.displayImages(host, view, this.imageReference, images);
+			ImageReference.displayImages(host, view, this.imageReference.range.fetchCurrentRange(), images);
 		})
 		.finally(() => {
 			host.incrementRunningRequestCount();

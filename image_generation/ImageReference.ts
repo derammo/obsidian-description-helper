@@ -1,5 +1,5 @@
 import { syntaxTree } from '@codemirror/language';
-import { EditorState, TextIterator } from '@codemirror/state';
+import { TextIterator } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { SyntaxNode } from '@lezer/common';
 import { fileTypeFromBuffer, FileTypeResult } from 'file-type';
@@ -10,43 +10,55 @@ import { PassThrough, Readable } from "node:stream";
 import { Host } from 'main/Plugin';
 import { TFile } from 'obsidian';
 
+import { WidgetContext } from 'derobst/interfaces';
+import { TextRange, UpdatedTextRange } from 'derobst/view';
 import { ImageSet } from './ImageSet';
-import { TextRange } from 'derobst/view';
 
 // generated images can be recognized from this prefix in their ![alt text](url)
 export const ALT_TEXT_PREFIX = 'generated DALL-E ';
 
 export class ImageReference {
-	from: number;
-	to: number;
 	url: string;
 	file: TFile | undefined;
-
+	range: UpdatedTextRange;
+	
 	constructor(
-		state: EditorState, public readonly generationId: string,
+		context: WidgetContext<Host>, public readonly generationId: string,
 		public readonly prompt: string, altText: SyntaxNode, url: SyntaxNode,
 		closeParen: SyntaxNode) {
-		this.from = altText.from - 2;
-		this.to = closeParen.to;
-		if (state.doc.sliceString(closeParen.to, closeParen.to + 1) == ' ') {
-			this.to++;
+		let to: number = closeParen.to;
+		if (context.state.doc.sliceString(closeParen.to, closeParen.to + 1) == ' ') {
+			to++;
 		}
-		this.url = state.doc.sliceString(url.from, url.to);
+		this.range = context.plugin.tracking.register(context.state, { from: altText.from - 2, to: to });
+		this.url = context.state.doc.sliceString(url.from, url.to);
 	}
 
 	erase(view: EditorView) {
-		view.dispatch({ changes: { from: this.from, to: this.to } });
+		const range = this.range.fetchCurrentRange();
+		if (range === null) {
+			return;
+		}
+		view.dispatch({ changes: range });
 	}
 
 	insertChosenImageReference(view: EditorView, width: number, url: string) {
+		const range = this.range.fetchCurrentRange();
+		if (range === null) {
+			return;
+		}
 		view.dispatch({
 			changes:
-				{ from: this.from, to: this.from, insert: `![chosen image|${width}](${url})` }
+				{ from: range.from, to: range.from, insert: `![chosen image|${width}](${url})` }
 		});
 	}
 
 	insertLineBreak(view: EditorView) {
-		view.dispatch({ changes: { from: this.from, to: this.from, insert: '\n' } });
+		const range = this.range.fetchCurrentRange();
+		if (range === null) {
+			return;
+		}
+		view.dispatch({ changes: { from: range.from, to: range.from, insert: '\n' } });
 	}
 
 	private loadLocalFile(host: Host): Promise<TFile> {
@@ -111,8 +123,8 @@ export class ImageReference {
 
 	static displayImages(
 		host: Host, view: EditorView,
-		location: TextRange | ImageReference | undefined, images: ImageSet): void {
-		if (location === undefined) {
+		location: TextRange | null, images: ImageSet): void {
+		if (location === null) {
 			return;
 		}
 		let prefix = '\n\n';
@@ -174,14 +186,13 @@ export class ImageReference {
 		return host.createFileFromBuffer(`DALL-E/${fileName}`, results.buffer);
 	}
 
-	private replaceReferences(view: EditorView, url: string, file: TFile) {
+	private replaceReferences(view: EditorView, url: string, file: TFile): void {
 		const urls: SyntaxNode[] = [];
 		syntaxTree(view.state).iterate({
 			enter(scannedNode) {
 				switch (scannedNode.type.name) {
 					case 'string_url':
-						if (view.state.doc.sliceString(scannedNode.from, scannedNode.to) ===
-							url) {
+						if (view.state.doc.sliceString(scannedNode.from, scannedNode.to) === url) {
 							urls.unshift(scannedNode.node);
 						}
 						break;
@@ -194,7 +205,6 @@ export class ImageReference {
 		// replace all image references, which are in reverse order
 		for (const url of urls) {
 			view.dispatch({ changes: { from: url.from, to: url.to, insert: file.path } });
-			return url;
 		}
 	}
 }
